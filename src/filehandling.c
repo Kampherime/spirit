@@ -4,7 +4,15 @@
 #include <stdbool.h>
 #include <string.h>
 
-//#define DEFAULT_CAPACITY = 10;
+/*
+* TODO: Need to write the buffer to a file. Also need to put the terminal in raw mode
+* so that when the file gets written to you can go back and edit the previous
+* lines.
+*/
+
+enum EscapeCodes {
+    CTRL_Q = 17,
+};
 
 typedef struct {
     char *char_array;
@@ -13,9 +21,10 @@ typedef struct {
 } CharVector;
 
 CharVector init_char_vector() {
-    void* array_block = malloc(10);
-    char* default_array = (char *) memset(array_block, 0, 10);
-    CharVector vec = {default_array, 0, 10};
+    const int DEFAULT_CAPACITY = 10;
+    void* array_block = malloc(DEFAULT_CAPACITY);
+    char* default_array = (char *) memset(array_block, 0, DEFAULT_CAPACITY);
+    CharVector vec = {default_array, 0, DEFAULT_CAPACITY};
     return vec;
 }
 
@@ -24,7 +33,6 @@ int resize_char_vector(CharVector *vec) {
     const int ARRAY_SIZE = vec->capacity*2;
     char* new_array = realloc(vec->char_array, ARRAY_SIZE);
     if (new_array == NULL) {
-        fprintf(stderr, "ERROR: Failed to realloc a larger array capacity.");
         return 1;
     }
     vec->capacity *= 2;
@@ -34,27 +42,43 @@ int resize_char_vector(CharVector *vec) {
     return 0;
 }
 
+int process_escape_codes(char c) {
+    if (c == CTRL_Q) {
+        return 1;
+    }
+    return 0;
+}
 
-/// Returns an error code, hence the int return
-int read_text_input(char* filePath) {
-    CharVector input_vector = init_char_vector(); 
-    char buff[10];
-    FILE* file = fopen(filePath, "w"); 
+FILE* handle_file(char* file_path) { 
+    FILE* file = fopen(file_path, "w"); 
     if (file == NULL) {
         fprintf(stderr, "ERROR: Error opening file.\n");
-        return 1; // Can't decide if this should be return 1 or exit(1);
+        exit(1); 
     }
-    while(fgets(buff, 10, stdin) != NULL) {
-        if (input_vector.size + 10 > input_vector.capacity) {
+    return file;
+}
+
+/// Returns an error code, hence the int return
+/// This function does too much.
+int read_text_input() {
+    CharVector input_vector = init_char_vector(); 
+    char buff;
+    while(scanf(" %c", &buff) != EOF) {
+        input_vector.size += 1;
+        if (input_vector.size == input_vector.capacity) {
             int res = resize_char_vector(&input_vector);
             if (res != 0) {
+                fprintf(stderr, "ERROR: Failed to realloc a larger array capacity.");
                 break;
             }
         }
-        strcat(input_vector.char_array, buff);
-        printf("This is the string. No error yet: %s\n", input_vector.char_array);
+        if (process_escape_codes(buff) != 0) {
+            break;
+        }
+        strcat(input_vector.char_array, &buff);
     }
-    fclose(file);
+    printf("%s", input_vector.char_array);
+    //fclose(file);
     free(input_vector.char_array);
     input_vector.char_array = NULL;
     return 0;

@@ -13,3 +13,12 @@ build:
 run: 
 	make -s all
 	gcc -o ./bin/main src/main.c && ./bin/main
+
+# I have 10 dashes on either side. That's how I like to organize test suites, 
+# but you don't have to do it this way.
+tests: 
+	make -s all
+	gcc -o ./bin/test test/main_test.c 
+	@echo "----------BEGINNING OF TEST SUITE----------"
+	./bin/test
+	@echo "----------   END OF TEST SUITE   ----------"
