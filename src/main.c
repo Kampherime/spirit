@@ -11,10 +11,11 @@ void print_intended_usage() {
 int main(int argc, char **argv) {
     struct termios original_term;
     if (argc == 1) {
+        // This is commented out because every time we run make run, it runs.
         //print_intended_usage();
     }
     set_terminal_attributes();
-    read_text_input("test.txt");
+    read_text_input();
     reset_terminal_attributes(original_term);
     return 0;
 }
