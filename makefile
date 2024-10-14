@@ -1,7 +1,9 @@
 default:
-	@echo "No Command specified. Usage:"
+	@echo "No command specified. Usage:"
 	@echo "    build: Compiles the program."
 	@echo "    run: Compiles the program and runs it."
+	@echo "    tests: Runs the test suite."
+	@echo "    clean: Removes the binary files."
 
 all: 
 	if [ ! -d ./bin ]; then mkdir bin && echo "Did not find bin. Made bin instead."; fi
@@ -22,3 +24,6 @@ tests:
 	@echo "----------BEGINNING OF TEST SUITE----------"
 	./bin/test
 	@echo "----------   END OF TEST SUITE   ----------"
+
+clean: 
+	rm -r bin

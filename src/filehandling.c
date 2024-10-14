@@ -10,16 +10,20 @@
 * lines.
 */
 
+
+/// Will hold all the special escape codes for the program to read.
 enum EscapeCodes {
     CTRL_Q = 17,
 };
 
+/// The struct for a resizable string. Similar to an ArrayList from Java.
 typedef struct {
     char *char_array;
     int size;
     int capacity;
 } CharVector;
 
+/// Inits and returns a struct. Acts like a constructor for a class, almost.
 CharVector init_char_vector() {
     const int DEFAULT_CAPACITY = 10;
     void* array_block = malloc(DEFAULT_CAPACITY);
@@ -28,7 +32,9 @@ CharVector init_char_vector() {
     return vec;
 }
 
-/// Returns an error code, hence the int return
+// Returns an error code, hence the int return
+/// Whenever the CharVector is maxxed out, this function should be called 
+/// to double its size.
 int resize_char_vector(CharVector *vec) {
     const int ARRAY_SIZE = vec->capacity*2;
     char* new_array = realloc(vec->char_array, ARRAY_SIZE);
@@ -37,11 +43,14 @@ int resize_char_vector(CharVector *vec) {
     }
     vec->capacity *= 2;
     memmove(new_array, vec->char_array, vec->size);
-    //free(vec->char_array); // Might literally crash the program
+    // free(vec->char_array); // Might literally crash the program (it does.)
     vec->char_array = new_array;
     return 0;
 }
 
+/// This function will handle the processing for any codes the text 
+/// editor needs to read. Right now, it's incredibly primitive,
+/// and will scale with time.
 int process_escape_codes(char c) {
     if (c == CTRL_Q) {
         return 1;
@@ -49,6 +58,8 @@ int process_escape_codes(char c) {
     return 0;
 }
 
+/// This function serves as a wrapper for handling errors with file opening.
+/// Exits because a text editor can't edit nothing.
 FILE* handle_file(char* file_path) { 
     FILE* file = fopen(file_path, "w"); 
     if (file == NULL) {
@@ -58,8 +69,11 @@ FILE* handle_file(char* file_path) {
     return file;
 }
 
-/// Returns an error code, hence the int return
-/// This function does too much.
+// Returns an error code, hence the int return
+// This function does too much.
+/// This is the primary loop that reads raw text from the terminal.
+/// All it does right now is reads characters, stores them, and then
+/// prints them to the terminal when CTRL_Q is pressed.
 int read_text_input() {
     CharVector input_vector = init_char_vector(); 
     char buff;
