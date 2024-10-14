@@ -2,6 +2,7 @@
 #include "./filehandling.c"
 #include "./terminal.c"
 
+/// A message that prints whenever the wrong amount of arguments are inputed.
 void print_intended_usage() {
     printf("Intended usage of spirit: spirit + flags + <..files>\n");
 }
@@ -11,7 +12,9 @@ void print_intended_usage() {
 int main(int argc, char **argv) {
     struct termios original_term;
     if (argc == 1) {
-        // This is commented out because every time we run make run, it runs.
+        // The below function is temporarily commented out. Due to the nature
+        // of the makefile, it prints every time the makefile is ran.
+        // Once filehandling is implemented, this will be uncommented.
         //print_intended_usage();
     }
     set_terminal_attributes();
