@@ -25,10 +25,11 @@ typedef struct {
 
 
 /// Inits and returns a struct. Acts like a constructor for a class, almost.
-CharVector init_char_vector(int size) {
-    void* array_block = malloc(size);
-    char* default_array = (char *) memset(array_block, 0, size);
-    CharVector vec = {default_array, 0, size};
+CharVector init_char_vector() {
+    const int DEFAULT_CAPACITY = 10;
+    void* array_block = malloc(DEFAULT_CAPACITY);
+    char* default_array = (char *) memset(array_block, 0, DEFAULT_CAPACITY);
+    CharVector vec = {default_array, 0, DEFAULT_CAPACITY};
     return vec;
 }
 
@@ -75,7 +76,7 @@ FILE* handle_file(char* file_path) {
 /// All it does right now is reads characters, stores them, and then
 /// prints them to the terminal when CTRL_Q is pressed.
 int read_text_input() {
-    CharVector input_vector = init_char_vector(10);
+    CharVector input_vector = init_char_vector();
     char buff;
     while(scanf("%c", &buff) != EOF) {
         input_vector.size += 1;
