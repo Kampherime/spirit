@@ -23,12 +23,12 @@ typedef struct {
     int capacity;
 } CharVector;
 
+
 /// Inits and returns a struct. Acts like a constructor for a class, almost.
-CharVector init_char_vector() {
-    const int DEFAULT_CAPACITY = 10;
-    void* array_block = malloc(DEFAULT_CAPACITY);
-    char* default_array = (char *) memset(array_block, 0, DEFAULT_CAPACITY);
-    CharVector vec = {default_array, 0, DEFAULT_CAPACITY};
+CharVector init_char_vector(int size) {
+    void* array_block = malloc(size);
+    char* default_array = (char *) memset(array_block, 0, size);
+    CharVector vec = {default_array, 0, size};
     return vec;
 }
 
@@ -41,10 +41,10 @@ int resize_char_vector(CharVector *vec) {
     if (new_array == NULL) {
         return 1;
     }
-    vec->capacity *= 2;
-    memmove(new_array, vec->char_array, vec->size);
+    // memmove(new_array, vec->char_array, vec->size);
     // free(vec->char_array); // Might literally crash the program (it does.)
     vec->char_array = new_array;
+    vec->capacity = ARRAY_SIZE;
     return 0;
 }
 
@@ -75,9 +75,9 @@ FILE* handle_file(char* file_path) {
 /// All it does right now is reads characters, stores them, and then
 /// prints them to the terminal when CTRL_Q is pressed.
 int read_text_input() {
-    CharVector input_vector = init_char_vector(); 
+    CharVector input_vector = init_char_vector(10);
     char buff;
-    while(scanf(" %c", &buff) != EOF) {
+    while(scanf("%c", &buff) != EOF) {
         input_vector.size += 1;
         if (input_vector.size == input_vector.capacity) {
             int res = resize_char_vector(&input_vector);
@@ -91,7 +91,7 @@ int read_text_input() {
         }
         strcat(input_vector.char_array, &buff);
     }
-    printf("%s", input_vector.char_array);
+    printf("%s\n", input_vector.char_array);
     //fclose(file);
     free(input_vector.char_array);
     input_vector.char_array = NULL;
