@@ -10,15 +10,17 @@ void print_intended_usage() {
 ///Serves as an entry point for the editor. Naturally, not all operations
 ///will be executed in this file.
 int main(int argc, char **argv) {
-    struct termios original_term;
-    if (argc == 1) {
+    /*if (argc == 1) {
         // The below function is temporarily commented out. Due to the nature
         // of the makefile, it prints every time the makefile is ran.
         // Once filehandling is implemented, this will be uncommented.
         //print_intended_usage();
-    }
-    set_terminal_attributes();
+    }*/
+    int i = set_terminal_attributes();
+    /// Clears the screen
+    write(STDOUT_FILENO, "\x1b[2J]", 4);
+    /// Moves the cursor to the top left
+    write(STDOUT_FILENO, "\x1b[H", 3);
     read_text_input();
-    reset_terminal_attributes(original_term);
     return 0;
 }

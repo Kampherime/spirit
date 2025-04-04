@@ -1,8 +1,4 @@
-#include <stdio.h>
-#include <unistd.h> //for read and stdin_fileno
-#include <stdlib.h>
-#include <stdbool.h>
-#include <string.h>
+#include "filehandling.h"
 
 /*
 * TODO: Need to write the buffer to a file. Also need to put the terminal in raw mode
@@ -15,38 +11,6 @@
 enum EscapeCodes {
     CTRL_Q = 17,
 };
-
-/// The struct for a resizable string. Similar to an ArrayList from Java.
-typedef struct {
-    char *char_array;
-    int size;
-    int capacity;
-} CharVector;
-
-/// Inits and returns a struct. Acts like a constructor for a class, almost.
-CharVector init_char_vector() {
-    const int DEFAULT_CAPACITY = 10;
-    void* array_block = malloc(DEFAULT_CAPACITY);
-    char* default_array = (char *) memset(array_block, 0, DEFAULT_CAPACITY);
-    CharVector vec = {default_array, 0, DEFAULT_CAPACITY};
-    return vec;
-}
-
-// Returns an error code, hence the int return
-/// Whenever the CharVector is maxxed out, this function should be called 
-/// to double its size.
-int resize_char_vector(CharVector *vec) {
-    const int ARRAY_SIZE = vec->capacity*2;
-    char* new_array = realloc(vec->char_array, ARRAY_SIZE);
-    if (new_array == NULL) {
-        return 1;
-    }
-    vec->capacity *= 2;
-    memmove(new_array, vec->char_array, vec->size);
-    // free(vec->char_array); // Might literally crash the program (it does.)
-    vec->char_array = new_array;
-    return 0;
-}
 
 /// This function will handle the processing for any codes the text 
 /// editor needs to read. Right now, it's incredibly primitive,
@@ -77,7 +41,8 @@ FILE* handle_file(char* file_path) {
 int read_text_input() {
     CharVector input_vector = init_char_vector(); 
     char buff;
-    while(scanf(" %c", &buff) != EOF) {
+    while(1) {
+        read(STDIN_FILENO, &buff, 1);
         input_vector.size += 1;
         if (input_vector.size == input_vector.capacity) {
             int res = resize_char_vector(&input_vector);
