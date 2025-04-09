@@ -10,16 +10,51 @@
 /// Will hold all the special escape codes for the program to read.
 enum EscapeCodes {
     CTRL_Q = 17,
+    LEFT = 104,
+    DOWN = 106,
+    UP = 107,
+    RIGHT = 108
 };
 
 /// This function will handle the processing for any codes the text 
 /// editor needs to read. Right now, it's incredibly primitive,
 /// and will scale with time.
 int process_escape_codes(char c) {
-    if (c == CTRL_Q) {
-        return 1;
+    switch (c) {
+        case CTRL_Q:
+            return 1;
+            break;
+        case LEFT:
+            return 2;
+            break;
+        case DOWN:
+            return 3;
+            break;
+        case UP:
+            return 4;
+            break;
+        case RIGHT:
+            return 5;
+            break;
     }
     return 0;
+}
+
+int move_cursor(int input) {
+    switch (input) {
+        case 2: //left
+            write(STDOUT_FILENO, "\x1b[1D", 4);
+            break;
+        case 3: //down  
+            write(STDOUT_FILENO, "\x1b[1B", 4);
+            break;
+        case 4: //up  
+            write(STDOUT_FILENO, "\x1b[1A", 4);
+            break;
+        case 5: //right    
+            write(STDOUT_FILENO, "\x1b[1C", 4);
+            break;
+    }
 }
 
 /// This function serves as a wrapper for handling errors with file opening.
@@ -40,10 +75,9 @@ FILE* handle_file(char* file_path) {
 /// prints them to the terminal when CTRL_Q is pressed.
 int read_text_input() {
     CharVector input_vector = init_char_vector(); 
-    char buff;
+    char buff = '\0';
     while(1) {
         read(STDIN_FILENO, &buff, 1);
-        input_vector.size += 1;
         if (input_vector.size == input_vector.capacity) {
             int res = resize_char_vector(&input_vector);
             if (res != 0) {
@@ -51,13 +85,23 @@ int read_text_input() {
                 break;
             }
         }
-        if (process_escape_codes(buff) != 0) {
+        int d = process_escape_codes(buff);
+        if (d == 1) {
             break;
         }
-        strcat(input_vector.char_array, &buff);
+        if (d >= 2 && d <= 5) {
+            move_cursor(d);
+        }
+        if (buff != '\0') {
+            write(STDOUT_FILENO, "\x1b[1D", 4);
+            input_vector.char_array[input_vector.size] = buff;
+            input_vector.size += 1;
+            input_vector.char_array[input_vector.size] = '\0';
+            buff = '\0';
+        }
     }
-    printf("%s", input_vector.char_array);
     //fclose(file);
+    printf("%s\r\n", input_vector.char_array);
     free(input_vector.char_array);
     input_vector.char_array = NULL;
     return 0;

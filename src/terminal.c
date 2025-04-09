@@ -1,13 +1,24 @@
-#include <termios.h>
-#include <stdio.h>
-#include <stdlib.h>
 #include "terminal.h"
 
 /// Terminal that serves as a default to go back to so this program doesn't
 /// mess with the users terminal after it closes.
 
+/* 
+ * 
+"\x1b[2J" - clears the screen
+"\x1b[H" - puts the cursor in the top left
+"\x1b[999C\x1b[999B" - moves the cursor over by a fuck ton
+"\x1b[6n" - idk? useful? maybe?
+"\x1b[?25l" - hide cursor
+"\x1b[?25h - unhides cursor
+"\x1b[%d;%dH" - mystery
+*/
+
 struct Editor_Config {
     struct termios config;
+    int cx;
+    int cy;
+    struct winsize ws;
 };
 
 struct Editor_Config E;
@@ -37,4 +48,10 @@ int set_terminal_attributes() {
 /// program was opened.
 void reset_terminal_attributes() {
     tcsetattr(0, TCSAFLUSH, &E.config);
+}
+
+void get_winsize() {
+    struct winsize ws;
+    ioctl(STDIN_FILENO, TIOCGWINSZ, &ws);
+    E.ws = ws;
 }

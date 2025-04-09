@@ -21,6 +21,10 @@ int main(int argc, char **argv) {
     write(STDOUT_FILENO, "\x1b[2J]", 4);
     /// Moves the cursor to the top left
     write(STDOUT_FILENO, "\x1b[H", 3);
+
+    // b moves it down and c moves it over
+    write(STDOUT_FILENO, "\x1b[1C\x1b[2B", 8);
+    get_winsize();
     read_text_input();
     return 0;
 }

@@ -1,5 +1,4 @@
-#include <stdio.h>
-
+#include "data.h"
 
 #define DEFAULT_CAPACITY 10 //jic
 
@@ -16,10 +15,6 @@ typedef struct {
 } CharVector;
 
 /// Holds the values for the columns and rows of the cursor.
-typedef struct {
-    int cx;
-    int cy.
-} Cursor;
 
 /// Inits and returns a struct. Acts like a constructor for a class, almost.
 CharVector init_char_vector() {
@@ -38,8 +33,7 @@ int resize_char_vector(CharVector *vec) {
         return 1;
     }
     vec->capacity *= 2;
-    memmove(new_array, vec->char_array, vec->size);
-    // free(vec->char_array); // Might literally crash the program (it does.)
+    //free(vec->char_array); // Might literally crash the program (it does.)
     vec->char_array = new_array;
     return 0;
 }
