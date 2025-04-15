@@ -53,9 +53,8 @@ void reset_terminal_attributes() {
 }
 
 /// Reenables ecohing
-/*
 void enable_echoing() {
-    E.config.c_lflag &= (ECHO);
+    E.config.c_lflag |= (ECHO);
     tcsetattr(fileno(stdin), 0, &E.config);
 }
 
@@ -63,7 +62,7 @@ void enable_echoing() {
 void disable_echoing() {
     E.config.c_lflag &= ~(ECHO);
     tcsetattr(fileno(stdin), 0, &E.config);
-}*/
+}
 /// Gets window size :) and sets the config to have it
 void get_winsize() {
     struct winsize ws;

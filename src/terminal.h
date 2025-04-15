@@ -10,8 +10,8 @@
 
 void reset_terminal_attributes();
 int set_terminal_attributes();
-//void enable_echoing();
-//void disable_echoing();
+void enable_echoing();
+void disable_echoing();
 void get_winsize();
 
 #endif

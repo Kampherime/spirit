@@ -28,7 +28,7 @@ int movement_loop() {
         read(STDIN_FILENO, &c, 1);
         process_escape_codes(c, true);
         if (c == 'i') {
-            //enable_echoing();
+            enable_echoing();
             TS.isInsertMode = true;
             TS.isNormalMode = false;
             read_text_input(&TS);
@@ -49,7 +49,12 @@ int read_text_input(Terminal_Status *TS) {
     char buff = '\0';
     for(;;) {
         read(STDIN_FILENO, &buff, 1);
-        write(STDOUT_FILENO, "\x1b[400C", 4);
+        if (buff == ESC) {
+            disable_echoing();
+            TS->isNormalMode = true;
+            TS->isInsertMode = false;
+            break;
+        }
         if (input_vector.size == input_vector.capacity) {
             int res = resize_char_vector(&input_vector);
             if (res != 0) {
@@ -57,14 +62,8 @@ int read_text_input(Terminal_Status *TS) {
                 break;
             }
         }
-        if (buff == ESC) {
-            //disable_echoing();
-            TS->isNormalMode = true;
-            TS->isInsertMode = false;
-            break;
-        }
         if (buff != '\0') {
-            write(STDOUT_FILENO, "\x1b[1C", 4);
+            //write(STDOUT_FILENO, "\x1b[1C", 4);
             input_vector.char_array[input_vector.size] = buff;
             input_vector.size += 1;
             input_vector.char_array[input_vector.size] = '\0';
