@@ -6,57 +6,6 @@
 * lines.
 */
 
-
-/// Will hold all the special escape codes for the program to read.
-enum EscapeCodes {
-    CTRL_Q = 17,
-    LEFT = 104,
-    DOWN = 106,
-    UP = 107,
-    RIGHT = 108
-};
-
-/// This function will handle the processing for any codes the text 
-/// editor needs to read. Right now, it's incredibly primitive,
-/// and will scale with time.
-int process_escape_codes(char c) {
-    switch (c) {
-        case CTRL_Q:
-            return 1;
-            break;
-        case LEFT:
-            return 2;
-            break;
-        case DOWN:
-            return 3;
-            break;
-        case UP:
-            return 4;
-            break;
-        case RIGHT:
-            return 5;
-            break;
-    }
-    return 0;
-}
-
-int move_cursor(int input) {
-    switch (input) {
-        case 2: //left
-            write(STDOUT_FILENO, "\x1b[1D", 4);
-            break;
-        case 3: //down  
-            write(STDOUT_FILENO, "\x1b[1B", 4);
-            break;
-        case 4: //up  
-            write(STDOUT_FILENO, "\x1b[1A", 4);
-            break;
-        case 5: //right    
-            write(STDOUT_FILENO, "\x1b[1C", 4);
-            break;
-    }
-}
-
 /// This function serves as a wrapper for handling errors with file opening.
 /// Exits because a text editor can't edit nothing.
 FILE* handle_file(char* file_path) { 
@@ -68,16 +17,39 @@ FILE* handle_file(char* file_path) {
     return file;
 }
 
+// I should really REALLY fix the way these functions handle this.
+// why am i doing all this TS stuff? its because I may add visual mode too :) 
+// its more extensible this way because then I just 
+// add another thing everywhere
+int movement_loop() {
+    Terminal_Status TS = {.isNormalMode = true, .isInsertMode = false};
+    char c = '\0';
+    for(;;) {
+        read(STDIN_FILENO, &c, 1);
+        process_escape_codes(c, true);
+        if (c == 'i') {
+            //enable_echoing();
+            TS.isInsertMode = true;
+            TS.isNormalMode = false;
+            read_text_input(&TS);
+        }
+        c = '\0';
+    }
+    return 0;
+}
+
+
 // Returns an error code, hence the int return
 // This function does too much.
 /// This is the primary loop that reads raw text from the terminal.
 /// All it does right now is reads characters, stores them, and then
 /// prints them to the terminal when CTRL_Q is pressed.
-int read_text_input() {
+int read_text_input(Terminal_Status *TS) {
     CharVector input_vector = init_char_vector(); 
     char buff = '\0';
-    while(1) {
+    for(;;) {
         read(STDIN_FILENO, &buff, 1);
+        write(STDOUT_FILENO, "\x1b[400C", 4);
         if (input_vector.size == input_vector.capacity) {
             int res = resize_char_vector(&input_vector);
             if (res != 0) {
@@ -85,15 +57,14 @@ int read_text_input() {
                 break;
             }
         }
-        int d = process_escape_codes(buff);
-        if (d == 1) {
+        if (buff == ESC) {
+            //disable_echoing();
+            TS->isNormalMode = true;
+            TS->isInsertMode = false;
             break;
         }
-        if (d >= 2 && d <= 5) {
-            move_cursor(d);
-        }
         if (buff != '\0') {
-            write(STDOUT_FILENO, "\x1b[1D", 4);
+            write(STDOUT_FILENO, "\x1b[1C", 4);
             input_vector.char_array[input_vector.size] = buff;
             input_vector.size += 1;
             input_vector.char_array[input_vector.size] = '\0';

@@ -3,19 +3,7 @@
 #define DEFAULT_CAPACITY 10 //jic
 
 // The struct that will hold the 2D array. Needs to be dynamically allocated.
-typedef struct {
-    char*** array;
-} FileData;
-
-/// The struct for a resizable string. Similar to an ArrayList from Java.
-typedef struct {
-    char *char_array;
-    int size;
-    int capacity;
-} CharVector;
-
 /// Holds the values for the columns and rows of the cursor.
-
 /// Inits and returns a struct. Acts like a constructor for a class, almost.
 CharVector init_char_vector() {
     char* array_block = (char*) calloc(DEFAULT_CAPACITY, sizeof(char)); // yes i know sizeof(char) is 1 but java taught me to hate magic numbers

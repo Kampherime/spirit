@@ -1,6 +1,7 @@
 #include <stdio.h>
-#include "./filehandling.c"
-#include "./terminal.c"
+#include "filehandling.h"
+#include "terminal.h"
+#include <termios.h>
 
 /// A message that prints whenever the wrong amount of arguments are inputed.
 void print_intended_usage() {
@@ -10,12 +11,14 @@ void print_intended_usage() {
 ///Serves as an entry point for the editor. Naturally, not all operations
 ///will be executed in this file.
 int main(int argc, char **argv) {
-    /*if (argc == 1) {
+    struct termios default_terminal;
+    tcgetattr(STDIN_FILENO, &default_terminal);
+    if (argc == 1) {
         // The below function is temporarily commented out. Due to the nature
         // of the makefile, it prints every time the makefile is ran.
         // Once filehandling is implemented, this will be uncommented.
         //print_intended_usage();
-    }*/
+    }
     int i = set_terminal_attributes();
     /// Clears the screen
     write(STDOUT_FILENO, "\x1b[2J]", 4);
@@ -23,8 +26,13 @@ int main(int argc, char **argv) {
     write(STDOUT_FILENO, "\x1b[H", 3);
 
     // b moves it down and c moves it over
-    write(STDOUT_FILENO, "\x1b[1C\x1b[2B", 8);
+    //write(STDOUT_FILENO, "\x1b[1C\x1b[2B", 8);
     get_winsize();
-    read_text_input();
+    int err = movement_loop();
+    if (err) {
+        fprintf(stderr, "movement loop exited with non-zero exit status");
+        exit(err);
+    }
+    tcsetattr(stdin, 0, &default_terminal);
     return 0;
 }

@@ -22,17 +22,18 @@ struct Editor_Config {
 };
 
 struct Editor_Config E;
+//struct termios default_term;
 
-/// uses cfmakeraw() to allow for raw input to the terminal.
 /// NEVER CALL THIS WITHOUT CALLING reset_terminal_attributes() AFTER.
 /// ^ i fixed this
 /// should use atexit() for the bottom guy
 int set_terminal_attributes() {
-    tcgetattr(fileno(stdin), &E.config);
+    tcgetattr(STDIN_FILENO, &E.config);
+    //default_term = E.config;
     struct termios raw_terminal = E.config;
     atexit(reset_terminal_attributes);
 
-    raw_terminal.c_lflag &= ~(ICANON | IEXTEN | ISIG);
+    raw_terminal.c_lflag &= ~(ICANON | IEXTEN | ISIG | ECHO);
     raw_terminal.c_cflag |= CS8;
     raw_terminal.c_iflag &= ~(BRKINT| IXON | ICRNL);
     raw_terminal.c_oflag &= ~(OPOST);
@@ -40,6 +41,7 @@ int set_terminal_attributes() {
     raw_terminal.c_cc[VTIME] = 1;
 
     tcsetattr(fileno(stdin), 0, &raw_terminal);
+    //E.config = raw_terminal;
 
     return 0;
 }
@@ -50,6 +52,19 @@ void reset_terminal_attributes() {
     tcsetattr(0, TCSAFLUSH, &E.config);
 }
 
+/// Reenables ecohing
+/*
+void enable_echoing() {
+    E.config.c_lflag &= (ECHO);
+    tcsetattr(fileno(stdin), 0, &E.config);
+}
+
+/// Disables echoing
+void disable_echoing() {
+    E.config.c_lflag &= ~(ECHO);
+    tcsetattr(fileno(stdin), 0, &E.config);
+}*/
+/// Gets window size :) and sets the config to have it
 void get_winsize() {
     struct winsize ws;
     ioctl(STDIN_FILENO, TIOCGWINSZ, &ws);
