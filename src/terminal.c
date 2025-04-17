@@ -22,14 +22,14 @@ struct Editor_Config {
 };
 
 struct Editor_Config E;
-//struct termios default_term;
+struct termios default_term;
 
-/// NEVER CALL THIS WITHOUT CALLING reset_terminal_attributes() AFTER.
-/// ^ i fixed this
-/// should use atexit() for the bottom guy
+// NEVER CALL THIS WITHOUT CALLING reset_terminal_attributes() AFTER.
+// ^ i fixed this
+// should use atexit() for the bottom guy
 int set_terminal_attributes() {
     tcgetattr(STDIN_FILENO, &E.config);
-    //default_term = E.config;
+    default_term = E.config;
     struct termios raw_terminal = E.config;
     atexit(reset_terminal_attributes);
 
@@ -41,7 +41,7 @@ int set_terminal_attributes() {
     raw_terminal.c_cc[VTIME] = 1;
 
     tcsetattr(fileno(stdin), 0, &raw_terminal);
-    //E.config = raw_terminal;
+    E.config = raw_terminal;
 
     return 0;
 }
@@ -49,7 +49,7 @@ int set_terminal_attributes() {
 /// Simply sets the terminal state back to the original state before the
 /// program was opened.
 void reset_terminal_attributes() {
-    tcsetattr(0, TCSAFLUSH, &E.config);
+    tcsetattr(0, TCSAFLUSH, &default_term);
 }
 
 /// Reenables ecohing

@@ -3,13 +3,10 @@
 #include "terminal.h"
 #include <termios.h>
 
-/// A message that prints whenever the wrong amount of arguments are inputed.
 void print_intended_usage() {
     printf("Intended usage of spirit: spirit + flags + <..files>\n");
 }
 
-///Serves as an entry point for the editor. Naturally, not all operations
-///will be executed in this file.
 int main(int argc, char **argv) {
     if (argc == 1) {
         // The below function is temporarily commented out. Due to the nature

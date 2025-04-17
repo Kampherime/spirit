@@ -31,18 +31,3 @@ int process_escape_codes(char c, bool isNormalMode) {
     }
     return -1;
 }
-
-/*
-int move_cursor(int input) {
-    switch (input) {
-        case 2: //left
-            break;
-        case 3: //down  
-            break;
-        case 4: //up  
-            break;
-        case 5: //right    
-            break;
-    }
-}
-*/

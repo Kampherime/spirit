@@ -24,11 +24,11 @@ FILE* handle_file(char* file_path) {
 int movement_loop() {
     Terminal_Status TS = {.isNormalMode = true, .isInsertMode = false};
     char c = '\0';
+    printf("bing bing bing bing!!!");
     for(;;) {
         read(STDIN_FILENO, &c, 1);
         process_escape_codes(c, true);
         if (c == 'i') {
-            enable_echoing();
             TS.isInsertMode = true;
             TS.isNormalMode = false;
             read_text_input(&TS);
@@ -49,8 +49,7 @@ int read_text_input(Terminal_Status *TS) {
     char buff = '\0';
     for(;;) {
         read(STDIN_FILENO, &buff, 1);
-        if (buff == ESC) {
-            disable_echoing();
+        if (buff == 27) {
             TS->isNormalMode = true;
             TS->isInsertMode = false;
             break;
@@ -63,14 +62,12 @@ int read_text_input(Terminal_Status *TS) {
             }
         }
         if (buff != '\0') {
-            //write(STDOUT_FILENO, "\x1b[1C", 4);
             input_vector.char_array[input_vector.size] = buff;
             input_vector.size += 1;
             input_vector.char_array[input_vector.size] = '\0';
             buff = '\0';
         }
     }
-    //fclose(file);
     printf("%s\r\n", input_vector.char_array);
     free(input_vector.char_array);
     input_vector.char_array = NULL;
